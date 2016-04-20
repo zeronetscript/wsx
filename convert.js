@@ -26,8 +26,6 @@ var jquery = fs.readFileSync(jqueryPath,"utf-8");
 
 var old_data = jsonfile.readFileSync("data.json");
 
-var next_post_id = old_data.next_post_id;
-
 function alreadyHave(title){
     for (var i in old_data.post){
         if(old_data.post[i].title==title){
@@ -42,6 +40,9 @@ function writeCurrent(){
     jsonfile.writeFileSync('new_data.json',old_data,{spaces:2});
     console.log("length "+old_data.post.length+":write new file to new_data.json");
 }
+
+var tocByTag={};
+var tocByDate={};
 
 function parseBlog(err,win){
 
@@ -70,6 +71,8 @@ function parseBlog(err,win){
 
     var bodyDoms=$("#blog_article_content p");
 
+    var tag=$("#blog_main_left div.blog_main_time h5 a");
+
     var body="";
 
     console.log("add "+title);
@@ -81,16 +84,28 @@ function parseBlog(err,win){
         }
     }
 
+    var dateObj=new Date(date);
+
     var post = {
         post_id: old_data.next_post_id,
         title:title,
-        date_published: (new Date(date)).getTime()/1000,
+        date_published: dateObj.getTime()/1000,
         body:body
     };
 
     old_data.post.unshift(post);
     old_data.next_post_id = old_data.next_post_id+1;
     changed=true;
+
+    tocByTag[tag]=post;
+
+
+    if(tocByDate[dateObj.getFullYear()]==undefined){
+        tocByDate[dateObj.getFullYear()]={};
+    }
+
+    tocByDate[dateObj.getFullYear()][dateObj.getMonth()]=post;
+    
 
     if (old_data.post.length%20==0) {
         writeCurrent();
@@ -123,6 +138,33 @@ fs.readdir(dir,function(err,files){
     }
 });
 
+function makeToc(){
+    var ret="";
 
-wg.wait(writeCurrent);
+    var names=tocByTag.names();
+
+    for(var i in names){
+        var tag=names[i];
+        ret+=(tag+":\n");
+        var post=tocByTag[tag].title;
+        ret+="- ["+post.title+"](/?PostId="+post.post_id+")\n";
+    }
+    return ret;
+}
+
+wg.wait(function(){
+
+    var tocPost = {
+        post_id: old_data.next_post_id,
+        title:title,
+        date_published: dateObj.getTime()/1000,
+        body:makeToc()
+    };
+
+    old_data.post.unshift(tocPost);
+
+    old_data.next_post_id=old_data.next_post_id+1;
+
+    writeCurrent();
+});
 
