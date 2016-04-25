@@ -7,6 +7,7 @@
     "process":"0.11.2",
     "path":"0.12.7",
     "jsonfile":"2.3.0",
-    "feedparser":"1.1.4"
+    "feedparser":"1.1.4",
+    "request":"2.72.0"
   }
 }
