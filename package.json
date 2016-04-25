@@ -1,0 +1,12 @@
+{
+  "name":"wsx",
+  "description":"convert wsx blog to zeroblog",
+  "dependencies":{
+    "fs":"0.0.2",
+    "jsdom":"8.4.0",
+    "process":"0.11.2",
+    "path":"0.12.7",
+    "jsonfile":"2.3.0",
+    "feedparser":"1.1.4"
+  }
+}
